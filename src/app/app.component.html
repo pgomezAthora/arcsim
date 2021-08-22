@@ -1,0 +1,79 @@
+<!-- src\app\app.component.html -->
+
+<!-- <app-sidenav>
+  <div class="container">
+    <h1 class="mat-display-3">Main Content</h1>
+    <p>
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Reiciendis nobis illum animi temporibus omnis.
+      Consequatur qui fugit facilis reiciendis deserunt, debitis beatae! Illo dolorem asperiores nisi excepturi eum
+      veritatis cupiditate.
+    </p>
+  </div>
+</app-sidenav> -->
+
+<!-- <router-outlet></router-outlet> -->
+
+
+<!-- 
+<mat-toolbar class="mat-elevation-z8">
+  <button mat-icon-button *ngIf="sidenav.mode === 'over'" (click)="sidenav.toggle()">
+      <mat-icon *ngIf="!sidenav.opened">
+          menu
+      </mat-icon>
+      <mat-icon *ngIf="sidenav.opened">
+          close
+      </mat-icon>
+  </button>
+  Responsive side navigation
+</mat-toolbar>
+
+<mat-sidenav-container>
+  <mat-sidenav #sidenav="matSidenav" class="mat-elevation-z8">
+
+      <img class="avatar mat-elevation-z8" src="https://source.unsplash.com/c_GmwfHBDzk/200x200" />
+
+      <h4 class="name">John Smith</h4>
+      <p class="designation">Software Engineer</p>
+
+      <mat-divider></mat-divider>
+
+      <button mat-button class="menu-button primary">
+          <mat-icon>home</mat-icon>
+          <span>Home</span>
+      </button>
+      <button mat-button class="menu-button">
+          <mat-icon>person</mat-icon>
+          <span>Profile</span>
+      </button>
+      <button mat-button class="menu-button">
+          <mat-icon>info</mat-icon>
+          <span>About</span>
+      </button>
+
+      <mat-divider></mat-divider>
+
+      <button mat-button class="menu-button">
+          <mat-icon>help</mat-icon>
+          <span>Help</span>
+      </button>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Choose a date</mat-label>
+        <input matInput [matDatepicker]="picker">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+  </mat-sidenav>
+  <mat-sidenav-content>
+      <div class="content mat-elevation-z8">
+          Main content here!
+      </div>
+  </mat-sidenav-content>
+</mat-sidenav-container> -->
+<h1>
+  {{title}}
+</h1>
+
+
+  <router-outlet></router-outlet>
