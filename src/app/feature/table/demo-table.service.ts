@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { InputDto } from './entitites/input.dto';
 import { ProductDto } from './entitites/product.dto';
+import { ICellData } from './interfaces/table-data.interface';
 
 @Injectable({ providedIn: 'root' })
 export class DemoTableService {
@@ -389,6 +390,52 @@ export class DemoTableService {
                 typeId: 1,
                 categoryName: 'Assumptions'
             }
+        ];
+    }
+
+    getCell(): ICellData[] {
+        return [
+            { productId: 27, runTypeId: 7, modelParamId: 69, inputId: 2 },
+            { productId: 27, runTypeId: 7, modelParamId: 70, inputId: 3 },
+            { productId: 27, runTypeId: 7, modelParamId: 69, inputId: 7 },
+            { productId: 31, runTypeId: 7, modelParamId: 99, inputId: 1 },
+            { productId: 31, runTypeId: 7, modelParamId: 98, inputId: 2 },
+            { productId: 31, runTypeId: 7, modelParamId: 100, inputId: 7 },
+            { productId: 31, runTypeId: 7, modelParamId: 92, inputId: 8 },
+            { productId: 31, runTypeId: 7, modelParamId: 101, inputId: 9 },
+            { productId: 31, runTypeId: 7, modelParamId: 103, inputId: 10 },
+            { productId: 31, runTypeId: 7, modelParamId: 102, inputId: 11 },
+            { productId: 31, runTypeId: 7, modelParamId: 104, inputId: 12 },
+            { productId: 31, runTypeId: 7, modelParamId: 94, inputId: 13 },
+            { productId: 31, runTypeId: 7, modelParamId: 93, inputId: 14 },
+            { productId: 31, runTypeId: 7, modelParamId: 95, inputId: 15 },
+            { productId: 31, runTypeId: 7, modelParamId: 97, inputId: 16 },
+            { productId: 31, runTypeId: 7, modelParamId: 96, inputId: 17 },
+            { productId: 32, runTypeId: 7, modelParamId: 106, inputId: 1 },
+            { productId: 32, runTypeId: 7, modelParamId: 105, inputId: 2 },
+            { productId: 32, runTypeId: 7, modelParamId: 109, inputId: 8 },
+            { productId: 32, runTypeId: 7, modelParamId: 111, inputId: 9 },
+            { productId: 32, runTypeId: 7, modelParamId: 110, inputId: 10 },
+            { productId: 32, runTypeId: 7, modelParamId: 102, inputId: 11 },
+            { productId: 32, runTypeId: 7, modelParamId: 112, inputId: 12 },
+            { productId: 32, runTypeId: 7, modelParamId: 94, inputId: 13 },
+            { productId: 32, runTypeId: 7, modelParamId: 93, inputId: 14 },
+            { productId: 32, runTypeId: 7, modelParamId: 95, inputId: 15 },
+            { productId: 32, runTypeId: 7, modelParamId: 97, inputId: 16 },
+            { productId: 32, runTypeId: 7, modelParamId: 96, inputId: 17 },
+            { productId: 33, runTypeId: 7, modelParamId: 106, inputId: 1 },
+            { productId: 33, runTypeId: 7, modelParamId: 105, inputId: 2 },
+            { productId: 33, runTypeId: 7, modelParamId: 107, inputId: 7 },
+            { productId: 33, runTypeId: 7, modelParamId: 108, inputId: 8 },
+            { productId: 33, runTypeId: 7, modelParamId: 101, inputId: 9 },
+            { productId: 33, runTypeId: 7, modelParamId: 103, inputId: 10 },
+            { productId: 33, runTypeId: 7, modelParamId: 102, inputId: 11 },
+            { productId: 33, runTypeId: 7, modelParamId: 104, inputId: 12 },
+            { productId: 33, runTypeId: 7, modelParamId: 94, inputId: 13 },
+            { productId: 33, runTypeId: 7, modelParamId: 93, inputId: 14 },
+            { productId: 33, runTypeId: 7, modelParamId: 95, inputId: 15 },
+            { productId: 33, runTypeId: 7, modelParamId: 97, inputId: 16 },
+            { productId: 33, runTypeId: 7, modelParamId: 96, inputId: 17 }
         ];
     }
 }

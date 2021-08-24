@@ -11,7 +11,6 @@ export class TableHeaderComponent {
     mostrar = true;
     displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
     ocultar() {
-        console.log('test');
         if (this.mostrar) {
             this.displayedColumns = this.cambio;
         } else {

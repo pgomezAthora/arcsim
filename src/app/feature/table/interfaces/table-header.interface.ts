@@ -1,5 +1,3 @@
-import { IColumnDefinition } from './table-data.interface';
-
 export interface ProductHeader {
     id: number;
     name: string;
@@ -29,9 +27,9 @@ export class TableHeader implements ITableHeader {
     categoryIdentifier: string;
 }
 
-export class ITableData {
-    hide: boolean;
-    group: string;
-    agrupar: boolean;
-    [key: string]: IColumnDefinition | string | boolean;
-}
+// export class ITableData {
+//     hide: boolean;
+//     group: string;
+//     agrupar: boolean;
+//     [key: string]: IColumnDefinition | string | boolean;
+// }

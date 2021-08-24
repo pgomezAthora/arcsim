@@ -1,10 +1,12 @@
+import { ProductDto } from './entitites/product.dto';
 import { CollectionViewer } from '@angular/cdk/collections';
 import { DataSource } from '@angular/cdk/table';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { DemoTableService } from './demo-table.service';
 import { InputDto } from './entitites/input.dto';
 import { ITableHeader, ProductHeader } from './interfaces/table-header.interface';
 import { ITableConfig } from './interfaces/table.config';
+
+import { ICellDefinition, IInputProductTable, CellType, ICellData } from './interfaces/table-data.interface';
 
 export class ProductDataSource extends DataSource<IInputProductTable> {
     tableHeader: {
@@ -13,26 +15,37 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         displayColumns?: string[];
         categoriesColumns?: ITableHeader[];
         displayCategoriesColumns?: string[];
+        expandCategories: boolean;
+        expandInputs: boolean;
     };
 
     private lessonsSubject = new BehaviorSubject<IInputProductTable[]>([]);
     private loadingSubject = new BehaviorSubject<boolean>(false);
     public loading$ = this.loadingSubject.asObservable();
 
-    private _allProducts: { id: number; name: string }[] = [];
+    // private _allProducts: { id: number; name: string }[] = [];
     private _allInputs: InputDto[] = [];
+    private _allProducts: ProductDto[] = [];
+    private _allCells: ICellData[] = [];
     private _allData: IInputProductTable[] = [];
     private _tableHeader: ITableHeader[] = [];
+    private _filterInputs: string = '';
     private config: ITableConfig;
     private displayHideCategories: number[] = [];
 
-    constructor(private demoTableService: DemoTableService, config: ITableConfig) {
+    constructor(inputs: InputDto[], products: ProductDto[], cells: ICellData[], config: ITableConfig) {
         super();
 
-        this._allInputs = demoTableService.getInput();
+        this._allInputs = inputs;
+        this._allProducts = products;
+        this._allCells = cells;
         this.config = config;
 
-        this.tableHeader = { stickyColumns: this.config.stickyColumns };
+        this.tableHeader = {
+            stickyColumns: this.config.stickyColumns,
+            expandCategories: false,
+            expandInputs: false
+        };
     }
 
     connect(collectionViewer: CollectionViewer): Observable<readonly IInputProductTable[]> {
@@ -50,11 +63,24 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         this.loadData();
     }
 
+    filter(val: string): void {
+        this._filterInputs = val;
+        this.searchData();
+    }
+
     toggleCategory(id: number, type: string): void {
         if (type === 'header') {
             this.toggleHeader(id);
         } else if (type === 'column') {
             this.toggleColumn(id);
+        }
+    }
+
+    expand(type: string): void {
+        if (type === 'categories') {
+            this.expandCategories();
+        } else if (type === 'inputs') {
+            this.expandInputs();
         }
     }
 
@@ -76,11 +102,14 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             'header-row-first-group',
             ...this._tableHeader.map((x) => x.categoryIdentifier)
         ];
+
+        // Manage Expand Categories Icon
+        this.tableHeader.expandCategories =
+            this._tableHeader.filter((x) => x.hide === false).length !== this._tableHeader.length;
     }
 
     //#region Section to Load Data
     private loadData(): void {
-        const productsDto = this.demoTableService.getProduct();
         const body: IInputProductTable[] = [];
 
         let order = 1;
@@ -96,44 +125,73 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
                 }
             }
 
-            const i: IInputProductTable = {
+            const item: IInputProductTable = {
                 id: input.id,
                 order: order,
                 category: input.categoryName,
                 group: input.categoryName,
-                input_name: input.name,
-                input_category: input.categoryName
+                input_name: {
+                    productId: 0,
+                    inputId: 0,
+                    text: input.name,
+                    className: 'table-border-right align-right',
+                    type: CellType.Input
+                },
+                input_category: {
+                    productId: 0,
+                    inputId: 0,
+                    text: input.categoryName,
+                    className: 'align-left',
+                    type: CellType.Category
+                }
             };
 
-            for (const product of productsDto) {
+            let productCategoryName = this._allProducts[0].categoryName;
+            let previousProduct = '';
+            for (const product of this._allProducts) {
                 const field = product.name.replace(' ', '_');
-                i[field] = product.name;
+                item[field] = {
+                    productId: product.id,
+                    inputId: input.id,
+                    className: 'align-center',
+                    type: CellType.Cell,
+                    active: this._allCells.findIndex((x) => x.productId === product.id && x.inputId === input.id) !== -1
+                };
+
+                if (productCategoryName !== product.categoryName) {
+                    (item[previousProduct] as ICellDefinition).className = 'align-center table-border-right';
+                    productCategoryName = product.categoryName;
+                }
+
+                previousProduct = product.name;
             }
 
-            body.push(i);
-        }
-
-        // Order Elements
-        this.orderElements(body);
-
-        // Remove Category Name
-        const categories: string[] = [];
-        for (const item of body) {
-            if (categories.indexOf(item.category) === -1) {
-                categories.push(item.category);
-            } else {
-                item.input_category = '';
+            // Generate Empty Column Product
+            for (const header of this._tableHeader) {
+                item[`${header.category}_empty`] = {
+                    productId: 0,
+                    inputId: 0,
+                    className: 'table-border-right',
+                    type: CellType.EmptyCell
+                };
             }
+
+            body.push(item);
         }
 
-        this._allData = body;
+        body[body.length - 1].className = 'table-border-right';
+
+        // Sort Elements
+        this.sort(body);
+
+        this._allData = body.map((x) => Object.assign({}, x));
+        this.removeCategoriesName(body);
+
         this.lessonsSubject.next(body);
     }
 
     private loadHeader(): void {
-        const data = this.demoTableService.getProduct();
-
-        for (const header of data) {
+        for (const header of this._allProducts) {
             let item = this._tableHeader.find((y) => y.category === header.categoryName);
             if (!item) {
                 const d: ITableHeader = {
@@ -155,7 +213,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             };
             item.products.push(p);
 
-            this._allProducts.push(p);
             item.colspan = item?.products.length;
         }
 
@@ -163,29 +220,12 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     }
     //#endregion
 
-    private orderElements(data: IInputProductTable[]): void {
-        data.sort((a, b) => {
-            return a.order - b.order || a.input_name.localeCompare(b['input_name']);
-        });
-    }
-
-    private sort(collection: IInputProductTable[] | null = null) {
-        if (!collection) {
-            collection = this._allData;
-        }
-
-        collection.sort((a, b) => {
-            return a.order - b.order || a.input_name.localeCompare(b['input_name']);
-        });
-    }
-
-    //#region Seccion to Show/hide Columns/Rows
+    //#region Seccion to Show/hide Columns/Rows and filter
     private toggleHeader(id: number): void {
         const category = this._tableHeader.find((x) => x.id === id);
         if (!category) {
             return;
         }
-
         category.colspan = category.hide ? category.products.length : 1;
         category.hide = !category.hide;
         this.displayColumns();
@@ -199,14 +239,20 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             this.displayHideCategories.splice(index, 1);
         }
 
+        this.searchData();
+    }
+
+    private searchData(): void {
+        var alldata = this._allData.map((x) => Object.assign({}, x));
+
+        alldata = alldata.filter((x) => x['input_name'].text?.toLowerCase().includes(this._filterInputs.toLowerCase()));
         if (this.displayHideCategories.length === 0) {
-            this.lessonsSubject.next(this._allData);
+            this.lessonsSubject.next(alldata);
         }
 
-        var alldata = this._allData.map((x) => Object.assign({}, x));
         const categories = alldata.filter((x) => this.displayHideCategories.includes(x.id));
         if (categories.length === 0) {
-            this.lessonsSubject.next(this._allData);
+            this.lessonsSubject.next(alldata);
         }
 
         const filterByCategory = (arr1: IInputProductTable[], arr2: IInputProductTable[]) => {
@@ -218,7 +264,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             });
             return res;
         };
-
         alldata = filterByCategory(alldata, categories);
 
         for (const row of categories) {
@@ -228,7 +273,21 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
         this.sort(alldata);
 
+        this.removeCategoriesName(alldata);
+        this.tableHeader.expandInputs = this.displayHideCategories.length > 0;
         this.lessonsSubject.next(alldata);
+    }
+
+    private removeCategoriesName(data: IInputProductTable[]): void {
+        // Remove Category Name
+        const categories: string[] = [];
+        for (const item of data) {
+            if (categories.indexOf(item.category) === -1) {
+                categories.push(item.category);
+            } else {
+                item.input_category.text = '';
+            }
+        }
     }
 
     private generateEmptyRow(row: IInputProductTable) {
@@ -237,26 +296,80 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             order: row.order,
             category: row.category,
             group: row.group,
-            input_name: '',
+            input_name: {
+                productId: 0,
+                inputId: 0,
+                text: '',
+                className: 'table-border-right',
+                type: CellType.EmptyCell
+            },
             input_category: row.input_category
         };
 
         for (let key in row) {
             if (!tmp.hasOwnProperty(key)) {
-                tmp[key] = '';
+                tmp[key] = {
+                    productId: 0,
+                    inputId: 0,
+                    text: '',
+                    className: (row[key] as ICellDefinition).className,
+                    type: CellType.EmptyCell
+                };
             }
         }
         return tmp;
     }
-    //#endregion
-}
 
-interface IInputProductTable {
-    id: number;
-    group: string;
-    category: string;
-    order: number;
-    input_name: string;
-    input_category: string;
-    [key: string]: string | number;
+    private sort(collection: IInputProductTable[] | null = null) {
+        if (!collection) {
+            collection = this._allData;
+        }
+
+        collection.sort((a, b) => {
+            const inputName1: string = a.input_name.text as string;
+            const inputName2: string = b.input_name.text as string;
+
+            return a.category.localeCompare(b.category) || inputName1.localeCompare(inputName2);
+        });
+    }
+    //#endregion
+
+    //#region Expand/Collapse Categories and Inputs
+    /**
+     * Expand/Collapse All Liability Categories
+     */
+    private expandCategories() {
+        const item = this._tableHeader.find((x) => x.hide === true);
+
+        if (item) {
+            // Hide All Liability Categories
+            this._tableHeader.map((x) => {
+                x.hide = false;
+                x.colspan = x.products.length;
+            });
+        } else {
+            // Show All Liability Categories
+            this._tableHeader.map((x) => {
+                x.hide = true;
+                x.colspan = 1;
+            });
+        }
+
+        this.displayColumns();
+    }
+
+    /**
+     * Expand/Collapse All Inputs Categories
+     */
+    private expandInputs() {
+        if (this.displayHideCategories.length === 0) {
+            const ids = this._allData.filter((x) => x.input_category.text !== '').map((x) => x.id);
+            this.displayHideCategories.push(...ids);
+        } else {
+            this.displayHideCategories = [];
+        }
+
+        this.searchData();
+    }
+    //#endregion
 }
