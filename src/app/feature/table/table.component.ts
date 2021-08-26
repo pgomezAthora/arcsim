@@ -4,6 +4,7 @@ import { IInputProductTable, CellType, TableMode } from './interfaces/table-data
 import { ITableHeader } from './interfaces/table-header.interface';
 import { ITableConfig } from './interfaces/table.config';
 import { ProductDataSource } from './table.datasource';
+import { TableService } from './table.service';
 
 @Component({
     selector: 'table-example',
@@ -18,17 +19,26 @@ export class TableBasicComponent implements OnInit {
     searchValue: string;
     cellType = CellType;
 
-    constructor(private demoTableService: DemoTableService) {
+    constructor(private demoTableService: DemoTableService, private tableService: TableService) {
         const tableConfig: ITableConfig = {
             stickyColumns: ['input_category', 'input_name']
         };
-        this.mode = this.modes.ReadOnly;
+        this.mode = this.modes.Validate;
 
         const inputs = this.demoTableService.getInput();
         const products = this.demoTableService.getProduct();
         const cells = this.demoTableService.getCell();
+        const cellsCompare = this.demoTableService.getCellCompare();
 
-        this.dataSource = new ProductDataSource(inputs, products, cells, tableConfig);
+        this.dataSource = new ProductDataSource(
+            this.mode,
+            inputs,
+            products,
+            cells,
+            cellsCompare,
+            tableConfig,
+            this.tableService
+        );
         this.dataSource.load();
     }
 

@@ -77,13 +77,20 @@
                     <span>{{ column }}</span>
                 </th>
 
-                <td mat-cell *matCellDef="let row" [ngClass]="row[column].className">
+                <td
+                    mat-cell
+                    *matCellDef="let row"
+                    [ngClass]="row[column].className"
+                    [ngClass]="{ pointer: mode === modes.Edit, 'cell-selected': row[column].select }"
+                    (click)="dataSource.onClickSelectRow(row.id)"
+                >
                     <ng-container [ngSwitch]="row[column].type">
                         <span
                             *ngSwitchCase="cellType.Category"
                             class="fs-14"
                             (click)="dataSource.toggleCategory(row['id'], 'column')"
-                            >{{ row[column].text }}
+                        >
+                            {{ row.input_category.text }}
                         </span>
                         <span *ngSwitchCase="cellType.Input">{{ row[column].text }}</span>
                     </ng-container>
@@ -101,17 +108,51 @@
                         <!-- Empty Cell -->
                         <span *ngSwitchCase="cellType.EmptyCell"></span>
                         <!-- Cell -->
-                        <ng-container *ngSwitchCase="cellType.Cell">
-                            <div class="cell-container" [ngSwitch]="mode">
+                        <ng-container *ngSwitchCase="cellType.Cell" [ngSwitch]="mode">
+                            <div
+                                *ngSwitchCase="modes.ReadOnly"
+                                class="cell-container"
+                                (click)="dataSource.onClickCell(row[column].inputId, row[column].productId)"
+                            >
+                                <mat-icon [ngClass]="{ 'in-active': !row[column].active }">remove_red_eye</mat-icon>
+                            </div>
+                            <div
+                                *ngSwitchCase="modes.Edit"
+                                class="cell-container pointer"
+                                [ngClass]="{ 'cell-selected': row[column].select }"
+                                (click)="dataSource.onClickCell(row[column].inputId, row[column].productId)"
+                            >
                                 <!-- {{ row[column] | json }} -->
                                 <mat-icon
-                                    *ngSwitchCase="modes.ReadOnly"
-                                    [ngClass]="{ 'in-active': !row[column].active }"
-                                    >remove_red_eye</mat-icon
+                                    *ngIf="row[column].inputTypeId === 1"
+                                    (click)="dataSource.onClickCellIcon($event, 'insert')"
+                                    >insert_link</mat-icon
                                 >
-
-                                <mat-icon *ngSwitchCase="modes.Edit">insert_link</mat-icon>
-                                <mat-icon *ngSwitchCase="modes.Validate">edit</mat-icon>
+                                <mat-icon
+                                    *ngIf="row[column].inputTypeId === 2"
+                                    (click)="dataSource.onClickCellIcon($event, 'edit')"
+                                    >edit</mat-icon
+                                >
+                            </div>
+                            <div
+                                *ngSwitchCase="modes.Validate"
+                                class="cell-container"
+                                [ngClass]="{
+                                    'validate-active': row[column].validate !== null && row[column].validate === true,
+                                    'validate-in-active':
+                                        row[column].validate !== null && row[column].validate === false
+                                }"
+                            >
+                                <!-- {{ row[column] | json }} -->
+                                <mat-icon *ngIf="row[column].validate === null" [ngClass]="'cursor-default'"
+                                    >hourglass_empty</mat-icon
+                                >
+                                <mat-icon *ngIf="row[column].validate === true">check_circle</mat-icon>
+                                <mat-icon
+                                    *ngIf="row[column].validate === false"
+                                    (click)="dataSource.onClickCell(row[column].inputId, row[column].productId)"
+                                    >cancel</mat-icon
+                                >
                             </div>
                         </ng-container>
                     </ng-container>

@@ -13,13 +13,6 @@ export enum CellType {
     Cell
 }
 
-export interface ICellData {
-    productId: number;
-    runTypeId: number;
-    modelParamId: number;
-    inputId: number;
-}
-
 export interface ICellDefinition {
     productId: number;
     runTypeId?: number;
@@ -28,7 +21,10 @@ export interface ICellDefinition {
     className: string;
     text?: string;
     type: CellType;
+    inputTypeId: number;
     active?: boolean;
+    select?: boolean;
+    validate?: boolean | null;
 }
 
 export interface IInputProductTable {

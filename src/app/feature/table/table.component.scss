@@ -4,8 +4,11 @@ $font-color: black;
 $product-cell-width: 100px;
 $input-cell-width: 100px;
 $border-style: 2px solid black;
+$cell-backgroud-color: #ffb74d;
 $icon-active: black;
 $icon-in-active: grey;
+$validate-active-background-color: green;
+$validate-in-active-background-color: red;
 
 .container {
     width: 100%;
@@ -44,10 +47,17 @@ table {
         }
     }
 
-    th.mat-header-cell:first-of-type,
-    td.mat-cell:first-of-type,
-    td.mat-footer-cell:first-of-type {
-        padding-left: 0px;
+    th.mat-header-cell,
+    td.mat-cell,
+    td.mat-footer-cell {
+        border-bottom-width: 0px !important;
+
+        .mat-icon {
+            padding: 2px;
+        }
+        &:first-of-type {
+            padding-left: 0px;
+        }
     }
     .headers {
         th.mat-header-cell {
@@ -85,6 +95,24 @@ table {
 
         &:nth-child(2) {
             border-right: $border-style;
+        }
+    }
+
+    .cell-selected {
+        background-color: $cell-backgroud-color;
+    }
+
+    .validate-active {
+        background-color: $validate-active-background-color;
+        .mat-icon {
+            color: #fff !important;
+        }
+    }
+
+    .validate-in-active {
+        background-color: $validate-in-active-background-color;
+        .mat-icon {
+            color: #fff !important;
         }
     }
 
@@ -154,5 +182,9 @@ table {
 
     .pointer {
         cursor: pointer;
+    }
+
+    .cursor-default {
+        cursor: default !important;
     }
 }

@@ -6,7 +6,11 @@ import { InputDto } from './entitites/input.dto';
 import { ITableHeader, ProductHeader } from './interfaces/table-header.interface';
 import { ITableConfig } from './interfaces/table.config';
 
-import { ICellDefinition, IInputProductTable, CellType, ICellData } from './interfaces/table-data.interface';
+import { ICellDefinition, IInputProductTable, CellType, TableMode } from './interfaces/table-data.interface';
+import { Inject, Input } from '@angular/core';
+import { ICellDto } from './entitites/cell.dto';
+import { ICellCompareDto } from './entitites/cell-compare.dto';
+import { TableService } from './table.service';
 
 export class ProductDataSource extends DataSource<IInputProductTable> {
     tableHeader: {
@@ -26,19 +30,35 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     // private _allProducts: { id: number; name: string }[] = [];
     private _allInputs: InputDto[] = [];
     private _allProducts: ProductDto[] = [];
-    private _allCells: ICellData[] = [];
+    private _allCells: ICellDto[] = [];
+    private _allCompareCells: ICellCompareDto[] = [];
     private _allData: IInputProductTable[] = [];
     private _tableHeader: ITableHeader[] = [];
     private _filterInputs: string = '';
+    private _mode: TableMode;
+
+    // Store the Input Row where we select Cells.
+    private _selectedInput: number = 0;
+
     private config: ITableConfig;
     private displayHideCategories: number[] = [];
 
-    constructor(inputs: InputDto[], products: ProductDto[], cells: ICellData[], config: ITableConfig) {
+    constructor(
+        mode: TableMode,
+        inputs: InputDto[],
+        products: ProductDto[],
+        cells: ICellDto[],
+        compareCells: ICellCompareDto[],
+        config: ITableConfig,
+        public tableService: TableService
+    ) {
         super();
 
         this._allInputs = inputs;
         this._allProducts = products;
         this._allCells = cells;
+        this._allCompareCells = compareCells;
+        this._mode = mode;
         this.config = config;
 
         this.tableHeader = {
@@ -49,7 +69,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     }
 
     connect(collectionViewer: CollectionViewer): Observable<readonly IInputProductTable[]> {
-        console.log('Connecting data source');
         return this.lessonsSubject.asObservable();
     }
 
@@ -82,6 +101,28 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         } else if (type === 'inputs') {
             this.expandInputs();
         }
+    }
+
+    onClickCell(inputId: number, productId: number): void {
+        const item = this._allData.find((x) => x.id === inputId);
+        if (!item) {
+            return;
+        }
+
+        if (this._mode === TableMode.ReadOnly) {
+            this.onClickView(item);
+        } else if (this._mode === TableMode.Edit) {
+            this.onSelectCell(item, productId);
+        }
+    }
+
+    onClickCellIcon(event: MouseEvent, type: string): void {
+        event.stopPropagation();
+        console.log('ICON:' + type);
+    }
+
+    onClickSelectRow(inputId: number): void {
+        this.onSelecteRow(inputId);
     }
 
     private displayColumns(): void {
@@ -133,6 +174,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
                 input_name: {
                     productId: 0,
                     inputId: 0,
+                    inputTypeId: 0,
                     text: input.name,
                     className: 'table-border-right align-right',
                     type: CellType.Input
@@ -140,6 +182,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
                 input_category: {
                     productId: 0,
                     inputId: 0,
+                    inputTypeId: 0,
                     text: input.categoryName,
                     className: 'align-left',
                     type: CellType.Category
@@ -150,13 +193,27 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             let previousProduct = '';
             for (const product of this._allProducts) {
                 const field = product.name.replace(' ', '_');
+
                 item[field] = {
                     productId: product.id,
                     inputId: input.id,
+                    inputTypeId: input.typeId,
                     className: 'align-center',
                     type: CellType.Cell,
+                    select: false,
+                    validate: null,
                     active: this._allCells.findIndex((x) => x.productId === product.id && x.inputId === input.id) !== -1
                 };
+
+                if (this._mode === TableMode.Validate) {
+                    const validateItem = this._allCompareCells.find(
+                        (x) => x.inputId === input.id && x.productId === product.id
+                    );
+                    if (validateItem) {
+                        (item[field] as ICellDefinition).validate =
+                            validateItem.sourceModelParamId === validateItem.targetModelParamId;
+                    }
+                }
 
                 if (productCategoryName !== product.categoryName) {
                     (item[previousProduct] as ICellDefinition).className = 'align-center table-border-right';
@@ -172,6 +229,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
                     productId: 0,
                     inputId: 0,
                     className: 'table-border-right',
+                    inputTypeId: 0,
                     type: CellType.EmptyCell
                 };
             }
@@ -283,6 +341,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         const categories: string[] = [];
         for (const item of data) {
             if (categories.indexOf(item.category) === -1) {
+                item.input_category.text = item.category;
                 categories.push(item.category);
             } else {
                 item.input_category.text = '';
@@ -290,7 +349,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         }
     }
 
-    private generateEmptyRow(row: IInputProductTable) {
+    private generateEmptyRow(row: IInputProductTable): IInputProductTable {
         const tmp: IInputProductTable = {
             id: row.id,
             order: row.order,
@@ -301,6 +360,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
                 inputId: 0,
                 text: '',
                 className: 'table-border-right',
+                inputTypeId: 0,
                 type: CellType.EmptyCell
             },
             input_category: row.input_category
@@ -313,6 +373,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
                     inputId: 0,
                     text: '',
                     className: (row[key] as ICellDefinition).className,
+                    inputTypeId: (row[key] as ICellDefinition).inputTypeId,
                     type: CellType.EmptyCell
                 };
             }
@@ -320,7 +381,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         return tmp;
     }
 
-    private sort(collection: IInputProductTable[] | null = null) {
+    private sort(collection: IInputProductTable[] | null = null): void {
         if (!collection) {
             collection = this._allData;
         }
@@ -338,7 +399,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     /**
      * Expand/Collapse All Liability Categories
      */
-    private expandCategories() {
+    private expandCategories(): void {
         const item = this._tableHeader.find((x) => x.hide === true);
 
         if (item) {
@@ -361,7 +422,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     /**
      * Expand/Collapse All Inputs Categories
      */
-    private expandInputs() {
+    private expandInputs(): void {
         if (this.displayHideCategories.length === 0) {
             const ids = this._allData.filter((x) => x.input_category.text !== '').map((x) => x.id);
             this.displayHideCategories.push(...ids);
@@ -370,6 +431,89 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         }
 
         this.searchData();
+    }
+    //#endregion
+
+    //#region Cell Actions
+    private onClickView(item: IInputProductTable): void {
+        console.log('Click View');
+    }
+
+    /**
+     * Modify Value of Cell Selected property
+     */
+    private onSelectCell(item: IInputProductTable, productId: number): void {
+        const product = this._allProducts.find((x) => x.id === productId);
+        if (!product) {
+            return;
+        }
+
+        // UnSelect Cells
+        this.onUnselectCells(item.id);
+
+        // Change the Cell Select Value for a specific Product
+        const newValue = !(item[product.name] as ICellDefinition).select;
+        (item[product.name] as ICellDefinition).select = newValue;
+
+        // Check if all cells in the row are selected to change the Input Cell Value
+        let isAllCellSelected = true;
+        for (const product of this._allProducts) {
+            if (!(item[product.name] as ICellDefinition).select) {
+                isAllCellSelected = false;
+                break;
+            }
+        }
+
+        item.input_name.select = isAllCellSelected;
+
+        this._selectedInput = item.id;
+    }
+
+    private onSelecteRow(inputId: number): void {
+        if (this._mode !== TableMode.Edit) {
+            return;
+        }
+
+        const item = this._allData.find((x) => x.id === inputId);
+        if (!item) {
+            return;
+        }
+
+        // UnSelect Cells
+        this.onUnselectCells(inputId);
+
+        const newValue = item.input_name.select ? false : true;
+        item.input_name.select = newValue;
+        for (const product of this._allProducts) {
+            (item[product.name] as ICellDefinition).select = newValue;
+        }
+
+        this._selectedInput = item.id;
+    }
+
+    private onClickEdit(): void {}
+
+    private onClickInsert(): void {}
+
+    /**
+     * Un-select all cells when you click a cell from a different Input
+     */
+    private onUnselectCells(newInputId: number): void {
+        // Compare the previous input row selected with the new input row
+        if (this._selectedInput === newInputId) {
+            return;
+        }
+
+        const row = this._allData.find((x) => x.id === this._selectedInput);
+        if (!row) {
+            return;
+        }
+
+        for (const product of this._allProducts) {
+            (row[product.name] as ICellDefinition).select = false;
+        }
+
+        row.input_name.select = false;
     }
     //#endregion
 }

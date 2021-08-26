@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { ICellDto } from './entitites/cell.dto';
 import { InputDto } from './entitites/input.dto';
 import { ProductDto } from './entitites/product.dto';
-import { ICellData } from './interfaces/table-data.interface';
+import { ICellCompareDto } from './entitites/cell-compare.dto';
 
 @Injectable({ providedIn: 'root' })
 export class DemoTableService {
@@ -393,7 +394,7 @@ export class DemoTableService {
         ];
     }
 
-    getCell(): ICellData[] {
+    getCell(): ICellDto[] {
         return [
             { productId: 27, runTypeId: 7, modelParamId: 69, inputId: 2 },
             { productId: 27, runTypeId: 7, modelParamId: 70, inputId: 3 },
@@ -436,6 +437,52 @@ export class DemoTableService {
             { productId: 33, runTypeId: 7, modelParamId: 95, inputId: 15 },
             { productId: 33, runTypeId: 7, modelParamId: 97, inputId: 16 },
             { productId: 33, runTypeId: 7, modelParamId: 96, inputId: 17 }
+        ];
+    }
+
+    getCellCompare(): ICellCompareDto[] {
+        return [
+            { productId: 27, runTypeId: 7, inputId: 2, sourceModelParamId: 69, targetModelParamId: 69 },
+            { productId: 27, runTypeId: 7, inputId: 3, sourceModelParamId: 70, targetModelParamId: 70 },
+            { productId: 27, runTypeId: 7, inputId: 7, sourceModelParamId: 69, targetModelParamId: 69 },
+            { productId: 31, runTypeId: 7, inputId: 1, sourceModelParamId: 99, targetModelParamId: 99 },
+            { productId: 31, runTypeId: 7, inputId: 2, sourceModelParamId: 98, targetModelParamId: 98 },
+            { productId: 31, runTypeId: 7, inputId: 7, sourceModelParamId: 100, targetModelParamId: 100 },
+            { productId: 31, runTypeId: 7, inputId: 8, sourceModelParamId: 92, targetModelParamId: 92 },
+            { productId: 31, runTypeId: 7, inputId: 9, sourceModelParamId: 101, targetModelParamId: 301 },
+            { productId: 31, runTypeId: 7, inputId: 10, sourceModelParamId: 103, targetModelParamId: 103 },
+            { productId: 31, runTypeId: 7, inputId: 11, sourceModelParamId: 102, targetModelParamId: 102 },
+            { productId: 31, runTypeId: 7, inputId: 12, sourceModelParamId: 104, targetModelParamId: 104 },
+            { productId: 31, runTypeId: 7, inputId: 13, sourceModelParamId: 94, targetModelParamId: 154 },
+            { productId: 31, runTypeId: 7, inputId: 14, sourceModelParamId: 93, targetModelParamId: 93 },
+            { productId: 31, runTypeId: 7, inputId: 15, sourceModelParamId: 95, targetModelParamId: 95 },
+            { productId: 31, runTypeId: 7, inputId: 16, sourceModelParamId: 97, targetModelParamId: 97 },
+            { productId: 31, runTypeId: 7, inputId: 17, sourceModelParamId: 96, targetModelParamId: 96 },
+            { productId: 32, runTypeId: 7, inputId: 1, sourceModelParamId: 106, targetModelParamId: 178 },
+            { productId: 32, runTypeId: 7, inputId: 2, sourceModelParamId: 105, targetModelParamId: 105 },
+            { productId: 32, runTypeId: 7, inputId: 8, sourceModelParamId: 109, targetModelParamId: 109 },
+            { productId: 32, runTypeId: 7, inputId: 9, sourceModelParamId: 111, targetModelParamId: 111 },
+            { productId: 32, runTypeId: 7, inputId: 10, sourceModelParamId: 110, targetModelParamId: 110 },
+            { productId: 32, runTypeId: 7, inputId: 11, sourceModelParamId: 102, targetModelParamId: 102 },
+            { productId: 32, runTypeId: 7, inputId: 12, sourceModelParamId: 112, targetModelParamId: 112 },
+            { productId: 32, runTypeId: 7, inputId: 13, sourceModelParamId: 94, targetModelParamId: 99 },
+            { productId: 32, runTypeId: 7, inputId: 14, sourceModelParamId: 93, targetModelParamId: 93 },
+            { productId: 32, runTypeId: 7, inputId: 15, sourceModelParamId: 95, targetModelParamId: 95 },
+            { productId: 32, runTypeId: 7, inputId: 16, sourceModelParamId: 97, targetModelParamId: 97 },
+            { productId: 32, runTypeId: 7, inputId: 17, sourceModelParamId: 96, targetModelParamId: 96 },
+            { productId: 33, runTypeId: 7, inputId: 1, sourceModelParamId: 106, targetModelParamId: 106 },
+            { productId: 33, runTypeId: 7, inputId: 2, sourceModelParamId: 105, targetModelParamId: 111 },
+            { productId: 33, runTypeId: 7, inputId: 7, sourceModelParamId: 107, targetModelParamId: 107 },
+            { productId: 33, runTypeId: 7, inputId: 8, sourceModelParamId: 108, targetModelParamId: 108 },
+            { productId: 33, runTypeId: 7, inputId: 9, sourceModelParamId: 101, targetModelParamId: 101 },
+            { productId: 33, runTypeId: 7, inputId: 10, sourceModelParamId: 103, targetModelParamId: 103 },
+            { productId: 33, runTypeId: 7, inputId: 11, sourceModelParamId: 102, targetModelParamId: 102 },
+            { productId: 33, runTypeId: 7, inputId: 12, sourceModelParamId: 104, targetModelParamId: 104 },
+            { productId: 33, runTypeId: 7, inputId: 13, sourceModelParamId: 94, targetModelParamId: 56 },
+            { productId: 33, runTypeId: 7, inputId: 14, sourceModelParamId: 93, targetModelParamId: 93 },
+            { productId: 33, runTypeId: 7, inputId: 15, sourceModelParamId: 95, targetModelParamId: 95 },
+            { productId: 33, runTypeId: 7, inputId: 16, sourceModelParamId: 97, targetModelParamId: 97 },
+            { productId: 33, runTypeId: 7, inputId: 1, sourceModelParamId: 96, targetModelParamId: 967 }
         ];
     }
 }
