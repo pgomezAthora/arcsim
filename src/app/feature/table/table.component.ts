@@ -23,7 +23,7 @@ export class TableBasicComponent implements OnInit {
         const tableConfig: ITableConfig = {
             stickyColumns: ['input_category', 'input_name']
         };
-        this.mode = this.modes.Validate;
+        this.mode = this.modes.Edit;
 
         const inputs = this.demoTableService.getInput();
         const products = this.demoTableService.getProduct();
@@ -43,6 +43,10 @@ export class TableBasicComponent implements OnInit {
     }
 
     ngOnInit(): void {}
+
+    isSticky(): boolean {
+        return true;
+    }
 
     filter(): void {
         this.dataSource.filter(this.searchValue);

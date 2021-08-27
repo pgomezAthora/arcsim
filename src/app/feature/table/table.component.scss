@@ -4,6 +4,7 @@ $font-color: black;
 $product-cell-width: 100px;
 $input-cell-width: 100px;
 $border-style: 2px solid black;
+$border-basic-style: 1px solid #808080;
 $cell-backgroud-color: #ffb74d;
 $icon-active: black;
 $icon-in-active: grey;
@@ -50,38 +51,54 @@ table {
     th.mat-header-cell,
     td.mat-cell,
     td.mat-footer-cell {
-        border-bottom-width: 0px !important;
-
         .mat-icon {
             padding: 2px;
         }
         &:first-of-type {
             padding-left: 0px;
         }
+        &:not(:last-child) {
+            border-right: $border-basic-style;
+        }
     }
     .headers {
-        th.mat-header-cell {
-            font-size: $font-size-10;
-            font-weight: bold;
-            color: $font-color;
-            height: 30px !important;
-        }
-    }
-
-    .border-split-category-section {
-        td.mat-cell {
-            border-top: 2px solid black;
-        }
         th {
-            border-right: 2px solid black;
-            font-weight: bold;
-            color: $font-color;
+            &.mat-header-cell {
+                font-size: $font-size-10;
+                font-weight: bold;
+                color: $font-color;
+
+                &:not(:last-child) {
+                    border-right: $border-basic-style;
+                }
+            }
+        }
+        .mat-table-sticky {
+            top: 56px !important;
+            border-bottom: $border-style;
         }
     }
 
     tr.mat-row,
     th.mat-header-cell {
         height: 30px;
+    }
+
+    .border-split-category-section {
+        td.mat-cell {
+            border-top: $border-style !important;
+        }
+        th {
+            border-right: $border-style;
+            border-bottom: 0px;
+            &:first-child {
+                border-bottom: $border-style;
+            }
+
+            &:last-child {
+                border-right: 0px;
+            }
+        }
     }
 
     .mat-cell {
@@ -94,7 +111,11 @@ table {
         }
 
         &:nth-child(2) {
-            border-right: $border-style;
+            border-right: $border-style !important;
+        }
+        &.mat-column-input_category {
+            border-right: 0px !important;
+            border-bottom: 0px !important;
         }
     }
 
@@ -117,7 +138,7 @@ table {
     }
 
     .table-border-right {
-        border-right: $border-style;
+        border-right: $border-style !important;
     }
 
     .search-text-field {
