@@ -15,7 +15,7 @@ import { TableService } from './table.service';
 export class ProductDataSource extends DataSource<IInputProductTable> {
     tableHeader: {
         stickyColumns: string[];
-        dynamicColumns?: string[];
+        dynamicColumns?: { name: string; text: string }[];
         displayColumns?: string[];
         categoriesColumns?: ITableHeader[];
         displayCategoriesColumns?: string[];
@@ -26,6 +26,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     private lessonsSubject = new BehaviorSubject<IInputProductTable[]>([]);
     private loadingSubject = new BehaviorSubject<boolean>(false);
     public loading$ = this.loadingSubject.asObservable();
+    public _tableHeader: ITableHeader[] = [];
 
     // private _allProducts: { id: number; name: string }[] = [];
     private _allInputs: InputDto[] = [];
@@ -33,7 +34,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     private _allCells: ICellDto[] = [];
     private _allCompareCells: ICellCompareDto[] = [];
     private _allData: IInputProductTable[] = [];
-    private _tableHeader: ITableHeader[] = [];
     private _filterInputs: string = '';
     private _mode: TableMode;
 
@@ -87,6 +87,17 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         this.searchData();
     }
 
+    onTableScroll(e: any): void {
+        debugger;
+        const tableViewHeight = e.target.offsetHeight; // viewport: ~500px
+        const tableScrollHeight = e.target.scrollHeight; // length of all table
+        const scrollLocation = e.target.scrollTop; // how far user scrolled
+
+        // If the user has scrolled within 200px of the bottom, add more data
+        const buffer = 200;
+        const limit = tableScrollHeight - tableViewHeight - buffer;
+    }
+
     toggleCategory(id: number, type: string): void {
         if (type === 'header') {
             this.toggleHeader(id);
@@ -129,14 +140,21 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         const columns = [];
         for (const item of this._tableHeader) {
             if (item.hide) {
-                columns.push(`${item.category}_empty`);
+                columns.push({ name: `${item.category}_empty`, text: '' });
             } else {
-                columns.push(...item.products.map((y) => y.col));
+                columns.push(
+                    ...item.products.map((y) => {
+                        return { name: y.col, text: y.col };
+                    })
+                );
             }
         }
 
         this.tableHeader.dynamicColumns = columns;
-        this.tableHeader.displayColumns = [...this.tableHeader.stickyColumns, ...this.tableHeader.dynamicColumns];
+        this.tableHeader.displayColumns = [
+            ...this.tableHeader.stickyColumns,
+            ...this.tableHeader.dynamicColumns?.map((x) => x.name)
+        ];
 
         this.tableHeader.categoriesColumns = this._tableHeader;
         this.tableHeader.displayCategoriesColumns = [
@@ -191,6 +209,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
             let productCategoryName = this._allProducts[0].categoryName;
             let previousProduct = '';
+
             for (const product of this._allProducts) {
                 const field = product.name.replace(' ', '_');
 

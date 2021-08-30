@@ -64,4 +64,25 @@ export class TableBasicComponent implements OnInit {
 
         return witdh + 'px';
     }
+
+    getHeaderClassName(column: string): string {
+        if (column.includes('_empty')) {
+            return 'table-border-right';
+        }
+
+        const header = this.dataSource._tableHeader.find((x) => x.products.findIndex((y) => y.name === column));
+        if (!header) {
+            return '';
+        }
+        const index = header.products.findIndex((x) => x.name === column);
+        if (index === -1) {
+            return '';
+        }
+
+        if (header.products.length === index + 1) {
+            return 'table-border-right';
+        }
+
+        return '';
+    }
 }
