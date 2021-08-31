@@ -7,27 +7,47 @@ import { ITableConfig } from './interfaces/table.config';
 import { ProductDataSource } from './table.datasource';
 import { TableService } from './table.service';
 
+import * as mockData from './mock-data';
+
 describe('Table DataSource', () => {
     let fixture: ProductDataSource;
     let tableService: TableService;
     let mode: TableMode;
-    let mockInput: InputDto[];
-    let products: ProductDto[];
-    let cells: ICellDto[];
-    let compareCells: ICellCompareDto[];
+    let mockInputs: InputDto[];
+    let mockProducts: ProductDto[];
+    let mockCells: ICellDto[];
+    let mockCompareCells: ICellCompareDto[];
     let config: ITableConfig;
 
     beforeEach(() => {
         tableService = new TableService();
-
-        // fixture = new ProductDataSource();
     });
 
     function createFixture() {
-        // fixture = new ProductDataSource()
+        fixture = new ProductDataSource(
+            mode,
+            mockInputs,
+            mockProducts,
+            mockCells,
+            mockCompareCells,
+            config,
+            tableService
+        );
     }
 
-    it('', () => {
-        mode = TableMode.ReadOnly;
+    describe('General Functionality', () => {
+        beforeEach(() => {
+            mockInputs = mockData.mockInputs;
+            mockProducts = mockData.mockProducts;
+            mockCells = mockData.mockCells;
+            mockCompareCells = mockData.mockCellCompare;
+            mode = TableMode.ReadOnly;
+            config = mockData.mockTableConfig;
+            createFixture();
+        });
+
+        it('', () => {
+            expect('123').toBe('123');
+        });
     });
 });

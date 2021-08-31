@@ -96,10 +96,8 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         const buffer = 200;
         const limit = tableScrollHeight - tableViewHeight - buffer;
         if (scrollLocation > limit) {
-            this._rowShow += 20;
             const objects = this._allData.slice(0, this._rowShow);
-            this.removeCategoriesName(objects);
-            this.lessonsSubject.next(objects);
+            this.nextRows(objects);
         }
     }
 
@@ -265,16 +263,9 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
         // Sort Elements
         this.sort(body);
-
         this._allData = body.map((x) => Object.assign({}, x));
-        // this.removeCategoriesName(body);
-
-        // this.lessonsSubject.next(body);
-
-        const returnObject = body.slice(0, 20);
-        this.removeCategoriesName(returnObject);
-
-        this.lessonsSubject.next(returnObject);
+        this._rowShow = 0;
+        this.nextRows(body);
     }
 
     private loadHeader(): void {
@@ -309,6 +300,8 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
     //#region Manage Lazy Row Loading
     private nextRows(data: IInputProductTable[]): void {
+        this._rowShow += 20;
+
         const rows = data.slice(0, this._rowShow);
         this.removeCategoriesName(rows);
 
