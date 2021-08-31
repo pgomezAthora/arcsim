@@ -7,7 +7,6 @@ import { ITableHeader, ProductHeader } from './interfaces/table-header.interface
 import { ITableConfig } from './interfaces/table.config';
 
 import { ICellDefinition, IInputProductTable, CellType, TableMode } from './interfaces/table-data.interface';
-import { Inject, Input } from '@angular/core';
 import { ICellDto } from './entitites/cell.dto';
 import { ICellCompareDto } from './entitites/cell-compare.dto';
 import { TableService } from './table.service';
@@ -39,6 +38,7 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
     // Store the Input Row where we select Cells.
     private _selectedInput: number = 0;
+    private _rowShow: number = 0;
 
     private config: ITableConfig;
     private displayHideCategories: number[] = [];
@@ -88,7 +88,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     }
 
     onTableScroll(e: any): void {
-        debugger;
         const tableViewHeight = e.target.offsetHeight; // viewport: ~500px
         const tableScrollHeight = e.target.scrollHeight; // length of all table
         const scrollLocation = e.target.scrollTop; // how far user scrolled
@@ -96,6 +95,12 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         // If the user has scrolled within 200px of the bottom, add more data
         const buffer = 200;
         const limit = tableScrollHeight - tableViewHeight - buffer;
+        if (scrollLocation > limit) {
+            this._rowShow += 20;
+            const objects = this._allData.slice(0, this._rowShow);
+            this.removeCategoriesName(objects);
+            this.lessonsSubject.next(objects);
+        }
     }
 
     toggleCategory(id: number, type: string): void {
@@ -262,9 +267,14 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         this.sort(body);
 
         this._allData = body.map((x) => Object.assign({}, x));
-        this.removeCategoriesName(body);
+        // this.removeCategoriesName(body);
 
-        this.lessonsSubject.next(body);
+        // this.lessonsSubject.next(body);
+
+        const returnObject = body.slice(0, 20);
+        this.removeCategoriesName(returnObject);
+
+        this.lessonsSubject.next(returnObject);
     }
 
     private loadHeader(): void {
@@ -294,6 +304,15 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         }
 
         this.displayColumns();
+    }
+    //#endregion
+
+    //#region Manage Lazy Row Loading
+    private nextRows(data: IInputProductTable[]): void {
+        const rows = data.slice(0, this._rowShow);
+        this.removeCategoriesName(rows);
+
+        this.lessonsSubject.next(rows);
     }
     //#endregion
 
@@ -443,8 +462,10 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
      */
     private expandInputs(): void {
         if (this.displayHideCategories.length === 0) {
-            const ids = this._allData.filter((x) => x.input_category.text !== '').map((x) => x.id);
-            this.displayHideCategories.push(...ids);
+            var alldata = this._allData.map((x) => Object.assign({}, x));
+            this.removeCategoriesName(alldata);
+            const ids = alldata.filter((x) => x.input_category.text !== '').map((x) => x.id);
+            this.displayHideCategories = ids;
         } else {
             this.displayHideCategories = [];
         }

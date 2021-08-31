@@ -1,5 +1,6 @@
 <div class="container example-container" style="width: 100%; height: 575px">
-    {{ dataSource.tableHeader.displayColumns }}
+    <!-- {{ dataSource.tableHeader.displayColumns }} -->
+    <!-- {{ dataSource.tableHeader | json }} -->
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" (scroll)="dataSource.onTableScroll($event)">
         <!-- Header row first category group Search-->
         <ng-container matColumnDef="header-row-first-group">
@@ -60,13 +61,14 @@
             <th
                 mat-header-cell
                 *matHeaderCellDef
-                [ngClass]="'header-product align-left'"
+                [ngClass]="'header-product'"
                 [style.witdh]="getDynamicWidth(column)"
                 [attr.colspan]="column.colspan"
                 (click)="dataSource.toggleCategory(column.id, 'header')"
             >
                 <span [ngClass]="'w-90pc pointer'">
-                    {{ column.category }}
+                    {{ column.category }}<mat-icon *ngIf="column.hide === true">chevron_right</mat-icon
+                    ><mat-icon *ngIf="column.hide === false">chevron_left </mat-icon>
                 </span>
             </th>
         </ng-container>
@@ -95,10 +97,14 @@
                             *ngSwitchCase="cellType.Category"
                             class="fs-14"
                             (click)="dataSource.toggleCategory(row['id'], 'column')"
+                            [matTooltip]="row[column].text"
+                            appTooltipIfTruncated
                         >
-                            {{ row.input_category.text }}
+                            {{ row[column].text }}
                         </span>
-                        <span *ngSwitchCase="cellType.Input">{{ row[column].text }}</span>
+                        <span [matTooltip]="row[column].text" appTooltipIfTruncated *ngSwitchCase="cellType.Input">{{
+                            row[column].text
+                        }}</span>
                     </ng-container>
                 </td>
             </ng-container>
@@ -106,13 +112,8 @@
 
         <ng-container *ngFor="let column of dataSource.tableHeader.dynamicColumns">
             <ng-container [matColumnDef]="column.name">
-                <th
-                    mat-header-cell
-                    *matHeaderCellDef
-                    [ngClass]="'w-100 align-center'"
-                    [ngClass]="getHeaderClassName(column.name)"
-                >
-                    <span>{{ column.text }}</span>
+                <th mat-header-cell *matHeaderCellDef [ngClass]="'w-100'" [ngClass]="getHeaderClassName(column.name)">
+                    <span class="align-center">{{ column.text }}</span>
                 </th>
                 <td mat-cell *matCellDef="let row" [ngClass]="row[column.name].className">
                     <ng-container [ngSwitch]="row[column.name].type">
@@ -136,7 +137,7 @@
                                 [ngClass]="{ 'cell-selected': row[column.name].select }"
                                 (click)="dataSource.onClickCell(row[column.name].inputId, row[column.name].productId)"
                             >
-                                <!-- {{ row[column.name] | json }} -->
+                                <!-- {{ row | json }} -->
                                 <mat-icon
                                     *ngIf="row[column.name].inputTypeId === 1"
                                     (click)="dataSource.onClickCellIcon($event, 'insert')"

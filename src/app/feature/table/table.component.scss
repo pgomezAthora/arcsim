@@ -6,7 +6,8 @@ $input-cell-width: 100px;
 $border-style: 2px solid black;
 $border-basic-style: 1px solid #808080;
 $cell-backgroud-color: #ffb74d;
-$icon-active: black;
+$icon-active: #5d5d5d;
+$icon-active-hover: #3f51b5;
 $icon-in-active: grey;
 $validate-active-background-color: green;
 $validate-in-active-background-color: red;
@@ -28,10 +29,38 @@ $validate-in-active-background-color: red;
     overflow: auto;
 }
 table {
+    display: block; // display should be block, inline-block, grid or flex to do work the scroll event
     .header-product {
         font-size: $font-size-14;
         padding-right: $border-basic-style;
-        &:not(last-child) {
+        cursor: pointer;
+
+        span {
+            color: $font-color;
+            font-weight: bold;
+            padding-left: 15px;
+            display: flex;
+            align-items: center;
+            mat-icon {
+                font-size: 1em;
+            }
+        }
+    }
+
+    mat-icon {
+        font-size: 20px;
+        margin-top: 5px;
+        color: $icon-active;
+        cursor: pointer;
+        &:hover {
+            color: $icon-active-hover;
+        }
+        &.in-active {
+            color: $icon-in-active;
+            cursor: default;
+            &:hover {
+                color: $icon-in-active;
+            }
         }
     }
 
@@ -41,13 +70,13 @@ table {
         height: 100%;
         .expand-icon-section {
             position: absolute;
-            top: 5px;
+            top: -5px;
             cursor: pointer;
             &.expand-icon-category {
-                right: 5px;
+                right: 0px;
             }
             &.expand-icon-inputs {
-                left: 5px;
+                left: 0px;
             }
 
             .mat-icon.expand-icon {
@@ -161,21 +190,12 @@ table {
 
     .search-text-field {
         width: 170px;
-        margin: 25px 15px;
         z-index: 1;
+        position: absolute;
+        bottom: -10px;
+        left: 15px;
         a {
             cursor: pointer;
-        }
-    }
-
-    .cell-container {
-        .mat-icon {
-            color: $icon-active;
-            cursor: pointer;
-            &.in-active {
-                color: $icon-in-active;
-                cursor: default;
-            }
         }
     }
 
