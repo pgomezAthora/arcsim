@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { TableBasicComponent } from './table.component';
+import { DemoInputTableComponent } from './demo-input-table.component';
 
 const routes: Routes = [
     {
-        path: '',
-        component: TableBasicComponent
+        path: ':id',
+        component: DemoInputTableComponent
     }
 ];
 
@@ -13,4 +13,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class TableRoutingModule {}
+export class DemoInputTableRoutingModule {}

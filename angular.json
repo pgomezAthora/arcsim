@@ -86,7 +86,12 @@
           "options": {
             "browserTarget": "Web:build"
           }
-        }
+        },
+        "test":{
+          "builder": "@angular-builders/jest:run",
+          "options": { 
+          }
+        }      
       }
     }
   },

@@ -46,3 +46,6 @@ Thumbs.db
 
 /node_modules
 /disc
+
+# Angular
+.jest-test-results.json

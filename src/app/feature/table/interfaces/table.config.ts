@@ -7,6 +7,5 @@ export interface IProductColumns {
 }
 
 export interface ITableConfig {
-    stickyColumns: string[]; // IStickyColumns;
-    // productColumns: IProductColumns;
+    stickyColumns: string[];
 }

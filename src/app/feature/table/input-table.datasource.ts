@@ -1,15 +1,15 @@
-import { ProductDto } from './entitites/product.dto';
-import { CollectionViewer } from '@angular/cdk/collections';
 import { DataSource } from '@angular/cdk/table';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { InputDto } from './entitites/input.dto';
+import { IInputDto } from './entitites/input.dto';
+import { IProductDto } from './entitites/product.dto';
 import { ITableHeader, ProductHeader } from './interfaces/table-header.interface';
 import { ITableConfig } from './interfaces/table.config';
 
 import { ICellDefinition, IInputProductTable, CellType, TableMode } from './interfaces/table-data.interface';
 import { ICellDto } from './entitites/cell.dto';
 import { ICellCompareDto } from './entitites/cell-compare.dto';
-import { TableService } from './table.service';
+import { InputTableService, TableSpreedData } from './services/input-table.service';
+import { Cell, CellSelection } from './interfaces/cell-selection.interface';
 
 export class ProductDataSource extends DataSource<IInputProductTable> {
     tableHeader: {
@@ -23,13 +23,11 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     };
 
     private lessonsSubject = new BehaviorSubject<IInputProductTable[]>([]);
-    private loadingSubject = new BehaviorSubject<boolean>(false);
-    public loading$ = this.loadingSubject.asObservable();
     public _tableHeader: ITableHeader[] = [];
 
-    // private _allProducts: { id: number; name: string }[] = [];
-    private _allInputs: InputDto[] = [];
-    private _allProducts: ProductDto[] = [];
+    private _runTypeId: number;
+    private _allInputs: IInputDto[] = [];
+    private _allProducts: IProductDto[] = [];
     private _allCells: ICellDto[] = [];
     private _allCompareCells: ICellCompareDto[] = [];
     private _allData: IInputProductTable[] = [];
@@ -37,23 +35,25 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     private _mode: TableMode;
 
     // Store the Input Row where we select Cells.
-    private _selectedInput: number = 0;
+    public _selectedInput: { inputId: number; productIds: number[] } = { inputId: 0, productIds: [] };
     private _rowShow: number = 0;
 
     private config: ITableConfig;
     private displayHideCategories: number[] = [];
 
     constructor(
+        runTypeId: number,
         mode: TableMode,
-        inputs: InputDto[],
-        products: ProductDto[],
+        inputs: IInputDto[],
+        products: IProductDto[],
         cells: ICellDto[],
         compareCells: ICellCompareDto[],
         config: ITableConfig,
-        public tableService: TableService
+        public inputTableService: InputTableService
     ) {
         super();
 
+        this._runTypeId = runTypeId;
         this._allInputs = inputs;
         this._allProducts = products;
         this._allCells = cells;
@@ -66,15 +66,16 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             expandCategories: false,
             expandInputs: false
         };
+
+        this._rowShow = 20;
     }
 
-    connect(collectionViewer: CollectionViewer): Observable<readonly IInputProductTable[]> {
+    connect(): Observable<readonly IInputProductTable[]> {
         return this.lessonsSubject.asObservable();
     }
 
-    disconnect(collectionViewer: CollectionViewer): void {
+    disconnect(): void {
         this.lessonsSubject.complete();
-        this.loadingSubject.complete();
     }
 
     load(): void {
@@ -93,11 +94,11 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         const scrollLocation = e.target.scrollTop; // how far user scrolled
 
         // If the user has scrolled within 200px of the bottom, add more data
-        const buffer = 200;
+        const buffer = 300;
         const limit = tableScrollHeight - tableViewHeight - buffer;
         if (scrollLocation > limit) {
-            const objects = this._allData.slice(0, this._rowShow);
-            this.nextRows(objects);
+            this._rowShow += 20;
+            this.searchData();
         }
     }
 
@@ -123,16 +124,74 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             return;
         }
 
-        if (this._mode === TableMode.ReadOnly) {
-            this.onClickView(item);
-        } else if (this._mode === TableMode.Edit) {
+        if (this._mode === TableMode.Edit) {
             this.onSelectCell(item, productId);
         }
     }
 
-    onClickCellIcon(event: MouseEvent, type: string): void {
+    onClickCellIcon(event: any, type: string): void {
         event.stopPropagation();
-        console.log('ICON:' + type);
+
+        const inputId: number = +event.target.attributes.inputId.value;
+        const productId: number = +event.target.attributes.productId.value;
+
+        const cellSelection: CellSelection = {
+            inputId: this._selectedInput.inputId,
+            runTypeId: this._runTypeId,
+            cell: []
+        };
+        const arrCell: Cell[] = [];
+
+        const generateCell = (pId: number | null = null): Cell => {
+            const cellData = this._allCells.find(
+                (x) => x.productId === (pId ? pId : productId) && x.inputId === inputId
+            );
+
+            return {
+                inputId: inputId,
+                productId: pId ?? productId,
+                modelParamId: cellData?.modelParamId ?? 0
+            };
+        };
+
+        if (this._selectedInput.inputId === inputId) {
+            for (const pId of this._selectedInput.productIds) {
+                arrCell.push(generateCell(pId));
+            }
+
+            if (!arrCell.some((x) => x.productId === productId)) {
+                arrCell.push(generateCell());
+            }
+
+            cellSelection.cell = arrCell;
+        } else {
+            cellSelection.cell.push(generateCell());
+            cellSelection.inputId = inputId;
+
+            // unselect Cells if you click in a different row.
+            this.onUnselectCells(inputId);
+
+            this._selectedInput.productIds = [productId];
+
+            this.onSelectCellProcess();
+        }
+
+        switch (type) {
+            case 'insert':
+                this.onClickInsert(cellSelection);
+                break;
+            case 'edit':
+                this.onClickEdit(cellSelection);
+                break;
+            case 'readonly':
+                this.onClickView(cellSelection);
+                break;
+            case 'validate':
+                this.onClickViewDifference(cellSelection);
+                break;
+            default:
+                break;
+        }
     }
 
     onClickSelectRow(inputId: number): void {
@@ -264,7 +323,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         // Sort Elements
         this.sort(body);
         this._allData = body.map((x) => Object.assign({}, x));
-        this._rowShow = 0;
         this.nextRows(body);
     }
 
@@ -300,8 +358,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
     //#region Manage Lazy Row Loading
     private nextRows(data: IInputProductTable[]): void {
-        this._rowShow += 20;
-
         const rows = data.slice(0, this._rowShow);
         this.removeCategoriesName(rows);
 
@@ -318,6 +374,9 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         category.colspan = category.hide ? category.products.length : 1;
         category.hide = !category.hide;
         this.displayColumns();
+
+        this.onSelecteCellHideCategoryHeader();
+        this.onSelectCellProcess();
     }
 
     private toggleColumn(id: number): void {
@@ -364,7 +423,9 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
         this.removeCategoriesName(alldata);
         this.tableHeader.expandInputs = this.displayHideCategories.length > 0;
-        this.lessonsSubject.next(alldata);
+        // this.lessonsSubject.next(alldata);
+
+        this.nextRows(alldata);
     }
 
     private removeCategoriesName(data: IInputProductTable[]): void {
@@ -468,10 +529,6 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
     //#endregion
 
     //#region Cell Actions
-    private onClickView(item: IInputProductTable): void {
-        console.log('Click View');
-    }
-
     /**
      * Modify Value of Cell Selected property
      */
@@ -481,27 +538,24 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
             return;
         }
 
+        if (this._selectedInput.inputId === 0) {
+            this._selectedInput.inputId = item.id;
+        }
         // UnSelect Cells
         this.onUnselectCells(item.id);
 
-        // Change the Cell Select Value for a specific Product
-        const newValue = !(item[product.name] as ICellDefinition).select;
-        (item[product.name] as ICellDefinition).select = newValue;
-
-        // Check if all cells in the row are selected to change the Input Cell Value
-        let isAllCellSelected = true;
-        for (const product of this._allProducts) {
-            if (!(item[product.name] as ICellDefinition).select) {
-                isAllCellSelected = false;
-                break;
-            }
+        if ((item[product.name] as ICellDefinition).select) {
+            this._selectedInput.productIds = this._selectedInput.productIds.filter((x) => x !== productId);
+        } else {
+            this._selectedInput.productIds.push(productId);
         }
 
-        item.input_name.select = isAllCellSelected;
-
-        this._selectedInput = item.id;
+        this.onSelectCellProcess();
     }
 
+    /**
+     * Select All Row Cells
+     */
     private onSelecteRow(inputId: number): void {
         if (this._mode !== TableMode.Edit) {
             return;
@@ -514,30 +568,80 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
 
         // UnSelect Cells
         this.onUnselectCells(inputId);
-
         const newValue = item.input_name.select ? false : true;
         item.input_name.select = newValue;
-        for (const product of this._allProducts) {
-            (item[product.name] as ICellDefinition).select = newValue;
+        if (!newValue) {
+            this.onUnselectCells(0);
+            this._selectedInput = { inputId: 0, productIds: [] };
+            this.onSelectCellProcess();
+            return;
+        }
+        this._selectedInput.inputId = item.id;
+        this._selectedInput.productIds = [];
+
+        const categories = this.tableHeader.categoriesColumns?.filter((x) => x.hide === false);
+        if (!categories) {
+            return;
         }
 
-        this._selectedInput = item.id;
+        categories.map((x) => x.products.map((y) => this._selectedInput.productIds.push(y.id)));
+
+        this.onSelectCellProcess();
     }
 
-    private onClickEdit(): void {}
+    /**
+     * Unselect cells inside the Category Headerss
+     */
+    private onSelecteCellHideCategoryHeader(): void {
+        const categories = this.tableHeader.categoriesColumns?.filter((x) => x.hide === false);
+        if (!categories) {
+            return;
+        }
+        const availableProductIds: number[] = [];
+        categories.map((x) => x.products.map((y) => availableProductIds.push(y.id)));
 
-    private onClickInsert(): void {}
+        this._selectedInput.productIds = this._selectedInput.productIds.filter((x) => availableProductIds.includes(x));
+    }
+
+    /**
+     * Select cells selected previously
+     */
+    private onSelectCellProcess(): void {
+        const item = this._allData.find((x) => x.id === this._selectedInput.inputId);
+        if (!item) {
+            return;
+        }
+
+        const categories = this.tableHeader.categoriesColumns?.filter((x) => !x.hide);
+        if (!categories) {
+            return;
+        }
+
+        let isAllCellSelected = true;
+        for (const category of categories) {
+            for (const product of category.products) {
+                if (this._selectedInput.productIds.includes(product.id)) {
+                    (item[product.name] as ICellDefinition).select = true;
+                } else {
+                    (item[product.name] as ICellDefinition).select = false;
+                    isAllCellSelected = false;
+                }
+            }
+        }
+
+        item.input_name.select = isAllCellSelected;
+    }
 
     /**
      * Un-select all cells when you click a cell from a different Input
      */
     private onUnselectCells(newInputId: number): void {
         // Compare the previous input row selected with the new input row
-        if (this._selectedInput === newInputId) {
+        if (this._selectedInput.inputId === newInputId) {
             return;
         }
 
-        const row = this._allData.find((x) => x.id === this._selectedInput);
+        const row = this._allData.find((x) => x.id === this._selectedInput.inputId);
         if (!row) {
             return;
         }
@@ -547,6 +651,24 @@ export class ProductDataSource extends DataSource<IInputProductTable> {
         }
 
         row.input_name.select = false;
+        this._selectedInput.inputId = newInputId;
+        this._selectedInput.productIds = [];
+    }
+
+    private onClickEdit(data: CellSelection): void {
+        this.inputTableService.spreedData(data, TableSpreedData.Edit);
+    }
+
+    private onClickInsert(data: CellSelection): void {
+        this.inputTableService.spreedData(data, TableSpreedData.Insert);
+    }
+
+    private onClickView(data: CellSelection): void {
+        this.inputTableService.spreedData(data, TableSpreedData.View);
+    }
+
+    private onClickViewDifference(data: CellSelection): void {
+        this.inputTableService.spreedData(data, TableSpreedData.Validate);
     }
     //#endregion
 }

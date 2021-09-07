@@ -6,8 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
+    "test": "ng test --coverage --json --outputFile=.jest-test-results.json",
+    "test:watch": "ng test --watch",
+    "test-jest": "jest",
+    "test-jest:coverage": "jest --coverage",
     "lint": "tsc --noEmit && eslint . --ext js,ts --quiet --fix",
     "docs:json": "compodoc -p ./tsconfig.json -e json -d .",
     "storybook": "npm run docs:json && start-storybook -p 6006",
@@ -30,6 +32,7 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
+    "@angular-builders/jest": "^12.1.1",
     "@angular-devkit/build-angular": "~12.2.1",
     "@angular/cli": "~12.2.1",
     "@angular/compiler-cli": "~12.2.0",
@@ -38,6 +41,7 @@
     "@compodoc/compodoc": "^1.1.14",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.7",
+    "@storybook/addon-jest": "^6.3.7",
     "@storybook/addon-links": "^6.3.7",
     "@storybook/angular": "^6.3.7",
     "@storybook/builder-webpack5": "^6.3.7",

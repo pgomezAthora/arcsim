@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { ICellDto } from './entitites/cell.dto';
-import { InputDto } from './entitites/input.dto';
-import { ProductDto } from './entitites/product.dto';
-import { ICellCompareDto } from './entitites/cell-compare.dto';
+import { ICellCompareDto } from '../entitites/cell-compare.dto';
+import { ICellDto } from '../entitites/cell.dto';
+import { IInputDto } from '../entitites/input.dto';
+import { IProductDto } from '../entitites/product.dto';
 
 @Injectable({ providedIn: 'root' })
 export class DemoTableService {
     constructor() {}
 
-    getProduct(): ProductDto[] {
+    getProduct(): IProductDto[] {
         return [
             { id: 27, name: 'D_HL_RENRP', categoryName: 'Unit Linked' },
             { id: 28, name: 'D_HL_RENSP', categoryName: 'Unit Linked' },
@@ -30,7 +30,7 @@ export class DemoTableService {
         ];
     }
 
-    getInput(): InputDto[] {
+    getInput(): IInputDto[] {
         return [
             {
                 id: 1,

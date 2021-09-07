@@ -12,6 +12,24 @@ $icon-in-active: grey;
 $validate-active-background-color: green;
 $validate-in-active-background-color: red;
 
+// .compare-icon {
+//     display: none;
+//     color: black;
+//     &:hover {
+//         display: block;
+//     }
+// }
+// .validate-icon:hover {
+//     display: none;
+// }
+
+// .ejemp {
+//     display: block;
+//     &:hover {
+//         display: none;
+//     }
+// }
+
 .example-container {
     display: flex;
     flex-direction: column;
@@ -45,6 +63,13 @@ table {
                 font-size: 1em;
             }
         }
+    }
+
+    .cell-container {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     mat-icon {

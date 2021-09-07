@@ -1,5 +1,3 @@
-export interface TableData {}
-
 export enum TableMode {
     ReadOnly,
     Edit,

@@ -1,0 +1,12 @@
+<span>Icon:{{ responseIcon }}</span
+><br />
+<span>Value:{{ responseValue | json }}</span
+><br />
+<input-table
+    [mode]="data.mode"
+    [run-type-id]="data.runTypeId"
+    [inputs]="data.inputs"
+    [products]="data.products"
+    [cells]="data.cells"
+    [cells-compare]="data.cellCompare"
+></input-table>
