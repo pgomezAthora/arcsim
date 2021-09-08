@@ -1,0 +1,18 @@
+<!-- <div></div> -->
+
+<div class="sidenav-logo">
+    <a routerLink="/">
+        <img alt="Comany Logo" src="" />
+    </a>
+</div>
+<div class="sidenav-menu-list">
+    <mat-nav-list>
+        <div *ngFor="let item of pages">
+            <a href="{{ item.route }}" routerLinkActive="true">
+                <mat-icon matListIcon>{{ item.icon }}</mat-icon>
+
+                <span>{{ item.name }}</span>
+            </a>
+        </div>
+    </mat-nav-list>
+</div>

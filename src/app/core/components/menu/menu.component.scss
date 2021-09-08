@@ -1,0 +1,28 @@
+$sidebar-background-color: #fafafa;
+
+.example-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #eee;
+}
+
+.sidenav-container {
+    height: 100%;
+    overflow: hidden;
+    background-color: $sidebar-background-color;
+
+    .sidenav-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2em;
+    }
+
+    .sidenav-menu-list {
+        overflow: hidden;
+        overflow-y: auto;
+    }
+}

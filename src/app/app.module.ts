@@ -1,22 +1,16 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppRoutingModule } from './app.module.routing';
 import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { DemoMaterialModule } from './material.module';
+import { MaterialModule } from './shared/material/material.module';
+// import { MenuModule } from './core/components/menu/menu.module';
+import { CoreModule } from './core/core.module';
 
 @NgModule({
     declarations: [AppComponent],
-    imports: [
-        // TableModule,
-        // LayoutModule,
-        BrowserModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        DemoMaterialModule
-    ],
+    imports: [BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule, CoreModule],
     providers: [],
     bootstrap: [AppComponent]
 })
