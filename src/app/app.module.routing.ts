@@ -9,8 +9,14 @@ const routes: Routes = [
         path: '',
         component: MenuComponent,
         children: [
-            { path: '', loadChildren: () => import('./feature/home/home.module').then((mod) => mod.HomeModule) },
-            { path: 'home', loadChildren: () => import('./feature/home/home.module').then((mod) => mod.HomeModule) }
+            {
+                path: '',
+                loadChildren: () => import('./feature/home/dashboard.module').then((mod) => mod.DashboardModule)
+            },
+            {
+                path: 'home',
+                loadChildren: () => import('./feature/home/dashboard.module').then((mod) => mod.DashboardModule)
+            }
         ]
     },
     // {

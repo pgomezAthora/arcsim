@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,6 @@ import { MaterialModule } from '@shared/material/material.module';
 @NgModule({
     imports: [CommonModule, RouterModule, BrowserModule, BrowserAnimationsModule, MaterialModule],
     declarations: [SideBarComponent, MenuComponent],
-    entryComponents: [],
-    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+    entryComponents: []
 })
 export class MenuModule {}

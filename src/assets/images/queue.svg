@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="189px" height="189px" viewBox="0 0 189 189" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Symbols</title>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Dashboard/Illustrations/Queue" transform="translate(0.000000, 0.000000)" fill-rule="nonzero">
+            <g id="undraw_Task_re_wi3v">
+                <polygon id="Path" fill="#FFFFFF" points="189 189 0 189 0 0 189 0"></polygon>
+                <path d="M189,189 L0,189 L0,0 L189,0 L189,189 Z M2.79245692,186.207541 L186.207543,186.207541 L186.207543,2.79245864 L2.79245692,2.79245864 L2.79245692,186.207541 Z" id="Shape" fill="#E5E5E5"></path>
+                <rect id="Rectangle" fill="#3F51B5" x="39" y="81" width="122" height="4"></rect>
+                <rect id="Rectangle" fill="#3F51B5" x="39" y="92" width="122" height="4"></rect>
+                <rect id="Rectangle" fill="#3F51B5" x="39" y="104" width="122" height="4"></rect>
+                <circle id="Oval" fill="#3F51B5" cx="31.5" cy="84.5" r="2.5"></circle>
+                <rect id="Rectangle" fill="#E5E5E5" x="39" y="33" width="122" height="4"></rect>
+                <rect id="Rectangle" fill="#E5E5E5" x="39" y="45" width="122" height="4"></rect>
+                <rect id="Rectangle" fill="#E5E5E5" x="39" y="55" width="122" height="4"></rect>
+                <circle id="Oval" fill="#E5E5E5" cx="31.5" cy="35.5" r="2.5"></circle>
+                <rect id="Rectangle" fill="#E5E5E5" x="39" y="130" width="122" height="4"></rect>
+                <rect id="Rectangle" fill="#E5E5E5" x="39" y="140" width="122" height="4"></rect>
+                <rect id="Rectangle" fill="#E5E5E5" x="39" y="152" width="122" height="4"></rect>
+                <circle id="Oval" fill="#E5E5E5" cx="31.5" cy="131.5" r="2.5"></circle>
+            </g>
+        </g>
+    </g>
+</svg>

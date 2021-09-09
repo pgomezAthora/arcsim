@@ -5,7 +5,7 @@ export interface NavItem {
 }
 
 export const NavRoutes: NavItem[] = [
-    { name: 'Home', route: '/', icon: 'home' },
+    { name: 'Dashboard', route: '/', icon: 'home' },
     { name: 'Reporting', route: '/', icon: 'assignment' },
     { name: 'SBA', route: '/', icon: 'view_array' },
     { name: 'Queue', route: '/', icon: 'format_list_numbered' },

@@ -1,0 +1,24 @@
+.container {
+    margin-top: 80px;
+
+    .section {
+        display: flex;
+        align-items: center;
+        margin: 0 10% 40px;
+        width: 80%;
+        background-color: #ffffff;
+        box-shadow: 1px 1px #888888;
+
+        .imagen {
+            padding: 25px;
+            img {
+                width: 215px;
+                height: 175px;
+            }
+        }
+
+        .Texto {
+            padding-left: 5%;
+        }
+    }
+}
