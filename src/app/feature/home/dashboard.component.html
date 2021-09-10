@@ -1,8 +1,8 @@
 <div class="container">
     <div class="section" *ngFor="let item of data">
-        <div class="imagen"><img alt="alternativa" src="{{ item.imgSrc }}" /></div>
-        <div class="Texto">
-            <h3>{{ item.title }}</h3>
+        <div class="content-image"><img alt="{{ item.title }}" src="{{ item.imgSrc }}" /></div>
+        <div class="content-text">
+            <h2>{{ item.title }}</h2>
             <p>{{ item.text }}</p>
             <button mat-raised-button color="primary" [routerLink]="item.route">View</button>
         </div>

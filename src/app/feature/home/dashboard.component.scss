@@ -9,16 +9,61 @@
         background-color: #ffffff;
         box-shadow: 1px 1px #888888;
 
-        .imagen {
+        .content-image {
             padding: 25px;
-            img {
-                width: 215px;
-                height: 175px;
+        }
+
+        .content-text {
+            padding-left: 5%;
+
+            h2 {
+                font-weight: bold;
             }
         }
 
-        .Texto {
-            padding-left: 5%;
+        @media (max-width: 800px) {
+            .content-image {
+                img {
+                    width: 125px;
+                    height: 102px;
+                }
+            }
+
+            .content-text {
+                p {
+                    margin: 5% 0;
+                }
+            }
+        }
+
+        @media (min-width: 800px) and (max-width: 1239px) {
+            .content-image {
+                img {
+                    width: 175px;
+                    height: 142px;
+                }
+            }
+
+            .content-text {
+                p {
+                    margin: 10% 0;
+                }
+            }
+        }
+
+        @media (min-width: 1240px) {
+            .content-image {
+                img {
+                    width: 215px;
+                    height: 175px;
+                }
+            }
+
+            .content-text {
+                p {
+                    margin: 14% 0;
+                }
+            }
         }
     }
 }
